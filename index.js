@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 
 require('dotenv').config();
-const port = process.env.APP_PORT || 3000
+const port = process.env.APP_PORT || 3000 // lay port trong evn
 const { executeQuery } = require("./App/SQLServer/SqlServerConnect")
 const sqldata = require("./App/SQLServer/SqlServerConnect")
 
