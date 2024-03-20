@@ -5,11 +5,16 @@ const app = express();
 // Import router
 const homeRoutes = require('./routes/home.routes');
 const profileRoutes = require('./routes/profile.routes');
+const userRoutes = require('./routes/user.routes');
+
 // Sử dụng router
 app.use('/', homeRoutes);
 
 // Sử dụng router profileRoutes cho các định tuyến liên quan đến trang profile
 app.use('/profile', profileRoutes);
+
+// Sử dụng router profileRoutes cho các định tuyến liên quan đến trang profile
+app.use('/user', userRoutes);
 
 // Khởi động máy chủ
 const PORT = 3000;
