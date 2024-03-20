@@ -1,2 +1,25 @@
-use DB
+use MYDATABASE
 go
+
+CREATE TABLE [users] (
+    id INT PRIMARY KEY,
+    username NVARCHAR(50) UNIQUE,
+    password NVARCHAR(100),
+    fullName NVARCHAR(100),
+    phone NVARCHAR(20),
+    address NVARCHAR(255),
+    email NVARCHAR(100)
+);
+
+
+INSERT INTO [users] (id, username, password, fullName, phone, address, email)
+VALUES
+    (1, N'admin', N'adminpassword', N'Admin User', N'1234567890', N'123 Main St, City, Country', N'admin@example.com'),
+    (2, N'user1', N'user1password', N'User 1', N'0987654321', N'456 Park Ave, City, Country', N'user1@example.com'),
+    (3, N'user2', N'user2password', N'User 2', N'5555555555', N'789 Elm St, City, Country', N'user2@example.com'),
+    (4, N'user3', N'user3password', N'User 3', N'3333333333', N'321 Oak St, City, Country', N'user3@example.com'),
+    (5, N'user4', N'user4password', N'User 4', N'7777777777', N'654 Pine St, City, Country', N'user4@example.com');
+
+
+
+Select * from users
