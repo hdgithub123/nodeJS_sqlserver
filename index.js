@@ -46,7 +46,7 @@ app.get('/data', (req, res) => {
 
   app.get('/students', (req, res) => {
 
-    //Sqlstring = "Select * from Student"
+       //Sqlstring = "Select * from Student"
     Sqlstring = "INSERT INTO student (id, name, email, phone) VALUES (2000, N'John Doe123', N'123john@example.com', N'12345678902')"
     executeQuery(Sqlstring)
     .then(response => {
