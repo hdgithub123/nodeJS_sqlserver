@@ -1,13 +1,17 @@
 const sql = require('mssql');
 const sqlstring = require('sqlstring');
 
+//require('dotenv').config();
+
 async function executeQuery(sqlQuery, ...params) {
+    
+    const port = process.env.PORT;
     const config = {
-        user: 'sa',
-        password: '123456',
-        server: '10.0.0.1',
-        port: 9000,
-        database: 'MYDATABASE',
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        server: process.env.DB_SERVER,
+        port: process.env.DB_PORT,
+        database: process.env.DB_DATABASE,
         options: {
             trustServerCertificate: true,
             encrypt: false // Tắt SSL/TLS ở đây

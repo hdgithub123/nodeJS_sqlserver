@@ -1,5 +1,5 @@
 
-const sqldata = require("../../SQLServer/SqlServerConnect");
+const sqldata = require("../SQLServer/SqlServerConnect");
 // lấy tất cả users trên csdl
 function getUsersProfile() {
         // Logic để lấy thông tin người dùng từ cơ sở dữ liệu

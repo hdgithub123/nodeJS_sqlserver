@@ -1,8 +1,10 @@
 const express = require('express')
 const app = express()
-const port = 3000
-const { executeQuery } = require("./SQLServer/SqlServerConnect")
-const sqldata = require("./SQLServer/SqlServerConnect")
+
+require('dotenv').config();
+const port = process.env.APP_PORT || 3000
+const { executeQuery } = require("./App/SQLServer/SqlServerConnect")
+const sqldata = require("./App/SQLServer/SqlServerConnect")
 
 
 app.get('/', (req, res) => {
