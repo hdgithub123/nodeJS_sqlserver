@@ -7,7 +7,6 @@ useslist = async(req, res) => { // bắt buộc dùng async... await
     console.log(userProfile.Status);
 };
 
-
 module.exports = {
     useslist,
 };
