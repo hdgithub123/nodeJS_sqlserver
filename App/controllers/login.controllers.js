@@ -12,7 +12,8 @@ login = async(req, res) => { // bắt buộc dùng async... await
 
 //Xác thực login
 loginAuthenticate  = async(req, res) => {
-    const { username, password } = req.body;
+    const username = req.body.username
+    const password = req.body.password
     const result = await authenticate(username, password);
     if (result.success) {
         res.json({ success: true, token: result.token });
@@ -20,6 +21,7 @@ loginAuthenticate  = async(req, res) => {
         res.status(401).json({ success: false, message: result.message });
     }
 }
+
 
 
 module.exports = {

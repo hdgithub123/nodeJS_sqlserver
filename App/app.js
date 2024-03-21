@@ -1,14 +1,18 @@
 // app.js
 const express = require('express');
 const app = express();
-//require('dotenv').config();
 require('dotenv').config();
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+
 
 // Import router
 const homeRoutes = require('./routes/home.routes');
 const profileRoutes = require('./routes/profile.routes');
 const userRoutes = require('./routes/user.routes');
-const loginRoutes = require('./routes/user.routes');
+const loginRoutes = require('./routes/Login.routes');
 
 // Sử dụng router
 app.use('/', homeRoutes);

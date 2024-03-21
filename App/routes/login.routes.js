@@ -7,4 +7,6 @@ router.get('/',loginController.login);
 
 router.post('/authenticate', loginController.loginAuthenticate);
 
+
+
 module.exports = router;
