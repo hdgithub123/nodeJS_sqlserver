@@ -8,6 +8,7 @@ require('dotenv').config();
 const homeRoutes = require('./routes/home.routes');
 const profileRoutes = require('./routes/profile.routes');
 const userRoutes = require('./routes/user.routes');
+const loginRoutes = require('./routes/user.routes');
 
 // Sử dụng router
 app.use('/', homeRoutes);
@@ -17,6 +18,9 @@ app.use('/profile', profileRoutes);
 
 // Sử dụng router userRoutes cho các định tuyến liên quan đến trang user
 app.use('/user', userRoutes);
+
+// Sử dụng router userRoutes cho các định tuyến liên quan đến trang user
+app.use('/login', loginRoutes);
 
 // Khởi động máy chủ
 const PORT = process.env.APP_PORT || 3000;
