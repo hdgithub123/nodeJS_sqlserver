@@ -27,11 +27,11 @@ async function executeQuery(sqlQuery, ...params) {
         const result = await pool.request().query(query); // Thực thi truy vấn bằng pool.request().query()
         
         // Trả về kết quả thành công
-        return { Result: result.recordset, Status: "ok" };
+        return { Result: result.recordset, Status: true };
     } catch (err) {
         console.error(err);
         // Trả về thông báo lỗi
-        return { Result: err, Status: "error" };
+        return { Result: err, Status: false };
     } finally {
         await sql.close();
     }
