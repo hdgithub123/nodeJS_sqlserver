@@ -18,9 +18,11 @@ async function authenticate(username, password) {
             // Tạo và trả về token nếu xác thực thành công
             const token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
             return { success: true, token: token };
+        } else{
+            return { success: false, message: 'Invalid username or password' };
         }
     }else{
-        return { success: false, message: 'ERROR connect or Invalid username or password' };
+        return { success: false, message: 'ERROR connect' };
     }
 }
 
