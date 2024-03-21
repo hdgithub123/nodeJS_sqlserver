@@ -6,7 +6,7 @@ const secretKey = process.env.SECRET_KEY;
 // Middleware để xác thực token JWT và phân quyền người dùng
 function authMiddleware(req, res, next) {
     // Lấy token từ tiêu đề 'Authorization'
-    const token = req.headers['Authorization'];
+    const token = req.headers.authorization;
     if (!token) {
         return res.status(401).json({ success: false, message: 'Unauthorized: Missing token' });
     }

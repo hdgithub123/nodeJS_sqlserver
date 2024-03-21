@@ -16,7 +16,7 @@ async function authenticate(username, password) {
         //if (user && bcrypt.compareSync(password, user.password)) {
         if (user && password === user.password) {// su dung tam
             // Tạo và trả về token nếu xác thực thành công
-            const token = jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
+            const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
             return { success: true, token: token };
         } else{
             return { success: false, message: 'Invalid username or password' };
