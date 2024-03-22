@@ -13,8 +13,8 @@ async function authenticate(username, password) {
     const users = await sqldata.executeQuery(Sqlstring,username);
     if (users.Status) {
         const user = users.Result.find(u => u.username === username);
-        //if (user && bcrypt.compareSync(password, user.password)) {
-        if (user && password === user.password) {// su dung tam
+        if (user && bcrypt.compareSync(password, user.password)) {
+       // if (user && password === user.password) {// su dung tam
             // Tạo và trả về token nếu xác thực thành công
             const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
             return { success: true, token: token };
