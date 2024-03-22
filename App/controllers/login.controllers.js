@@ -16,6 +16,7 @@ loginAuthenticate  = async(req, res) => {
     const password = req.body.password
     const result = await authenticate(username, password);
     if (result.success) {
+        res.cookie('token', result.token, { httpOnly: true });// set cookie truoc khi trả ra json
         res.json({ success: true, token: result.token });
     } else {
         res.status(401).json({ success: false, message: result.message });
