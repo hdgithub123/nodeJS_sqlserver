@@ -75,6 +75,7 @@ async function updateUsers(req, res) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
         await userModel.updateUsers(users); // Gọi hàm updateUsers từ model
+        console.log(users)
         res.status(200).json({ success: true, message: 'Users updated successfully' });
     } catch (error) {
         console.error(error);

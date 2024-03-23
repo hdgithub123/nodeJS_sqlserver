@@ -60,13 +60,47 @@ async function createUsers(users) {
 }
 
 async function updateUsers(users) {
+    console.log("Dang vao update")
     let sqlQuery = 'BEGIN TRANSACTION; ';
     users.forEach(user => {
-        sqlQuery += `UPDATE Users SET username = '${user.username}', password = '${user.password}', fullName = '${user.fullName}', phone = '${user.phone}', address = '${user.address}', email = '${user.email}' WHERE id = ${user.id}; `;
+        // Chuyển đổi giá trị id từ chuỗi sang số nguyên
+        const userId = parseInt(user.id);
+        // Kiểm tra xem giá trị id có hợp lệ không
+        if (!isNaN(userId)) {
+            // Mã hóa mật khẩu mới nếu có
+            if (user.password) {
+                const hashedPassword = bcrypt.hashSync(user.password, 10); // Mã hóa mật khẩu với bcrypt
+                sqlQuery += `UPDATE Users SET username = ?, password = '${hashedPassword}', fullName = ?, phone = ?, address = ?, email = ? WHERE id = ${userId}; `;
+            } else {
+                sqlQuery += `UPDATE Users SET username = ?, fullName = ?, phone = ?, address = ?, email = ? WHERE id = ${userId}; `;
+            }
+        }
     });
     sqlQuery += 'COMMIT;';
-    await sqldata.executeQuery(sqlQuery);
+    console.log(sqlQuery)
+    const values = users.flatMap(user => [user.username, user.fullName, user.phone, user.address, user.email]);
+    await sqldata.executeQuery(sqlQuery, ...values);
 }
+
+// async function updateUsers(users) {
+//     let sqlQuery = 'BEGIN TRANSACTION; ';
+//     for (const user of users) {
+//         // Mã hóa mật khẩu mới nếu có
+//         if (user.password) {
+//             const hashedPassword = await bcrypt.hash(user.password, 10); // Mã hóa mật khẩu với bcrypt
+//             sqlQuery += `UPDATE Users SET username = ?, password = ?, fullName = ?, phone = ?, address = ?, email = ? WHERE id = ?; `;
+//             const values = [user.username, hashedPassword, user.fullName, user.phone, user.address, user.email, user.id];
+//             console.log("1",sqlQuery)
+//             await sqldata.executeQuery(sqlQuery, ...values);
+//         } else {
+//             sqlQuery += `UPDATE Users SET username = ?, fullName = ?, phone = ?, address = ?, email = ? WHERE id = ?; `;
+//             const values = [user.username, user.fullName, user.phone, user.address, user.email, user.id];
+//             await sqldata.executeQuery(sqlQuery, ...values);
+//         }
+//         console.log("2",sqlQuery)
+//     }
+//     sqlQuery += 'COMMIT;';
+// }
 
 async function deleteUsers(users) {
     let sqlQuery = 'BEGIN TRANSACTION; ';
