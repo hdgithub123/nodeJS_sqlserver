@@ -1,6 +1,6 @@
-// user.controller.js
-//const userModel = require('../models/user.model');
 const sqldata = require("../SQLServer/SqlServerConnect");
+const userModel = require("../models/user.model");
+
 
 async function getUserById(req, res) {
     try {
@@ -48,7 +48,7 @@ async function createUser(req, res) {
 async function createUsers(req, res) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
-        await userModel.insertUsers(users); // Gọi hàm insertUsers từ model
+        await userModel.createUsers(users); // Gọi hàm insertUsers từ model
         res.status(201).json({ success: true, message: 'Users inserted successfully' });
     } catch (error) {
         console.error(error);

@@ -1,13 +1,7 @@
-
+const bcrypt = require('bcrypt');
 const sqldata = require("../SQLServer/SqlServerConnect");
 // lấy tất cả users trên csdl
-function getUsers() {
-        // Logic để lấy thông tin người dùng từ cơ sở dữ liệu
-        const Sqlstring = "Select * from users";
-        const data =  sqldata.executeQuery(Sqlstring);
-        return data;
 
-}
 async function getUserById(userId) {
     const sqlQuery = "SELECT * FROM Users WHERE Id = ?";
     return await sqldata.executeQuery(sqlQuery, userId);
@@ -21,12 +15,9 @@ async function createUser(user) {
     const sqlQuery = "INSERT INTO Users (id, username, password, fullName, phone, address, email) VALUES (?, ?, ?, ?, ?, ?, ?)";
     return await sqldata.executeQuery(sqlQuery, id, username, hashedPassword, fullName, phone, address, email);
 }
-
-async function createUsers(users) {
-    const placeholders = users.map(() => '(?, ?)').join(',');
-    const values = users.flatMap(user => [user.username, user.password]);
-    const sqlQuery = `INSERT INTO Users (username, password) VALUES ${placeholders}`;
-    await sqldata.executeQuery(sqlQuery, ...values);
+async function deleteUser(userId) {
+    const sqlQuery = "DELETE FROM Users WHERE Id = ?";
+    return await sqldata.executeQuery(sqlQuery, userId);
 }
 
 async function updateUser(userId, user) {
@@ -53,19 +44,28 @@ async function updateUser(userId, user) {
     // Thực hiện truy vấn cập nhật trong cơ sở dữ liệu
     return await sqldata.executeQuery(sqlQuery, ...params);
 }
+async function getUsers() {
+    // Logic để lấy thông tin người dùng từ cơ sở dữ liệu
+    const Sqlstring = "Select * from users";
+    const data = await sqldata.executeQuery(Sqlstring);
+    return data;
+
+}
+async function createUsers(users) {
+    const placeholders = users.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',');
+    const values = users.flatMap(user => [user.id, user.username, user.password, user.fullName, user.phone, user.address, user.email]);
+    const sqlQuery = `INSERT INTO Users (id, username, password, fullName, phone, address, email) VALUES ${placeholders}`;
+    console.log(sqlQuery);
+    await sqldata.executeQuery(sqlQuery, ...values);
+}
 
 async function updateUsers(users) {
     let sqlQuery = 'BEGIN TRANSACTION; ';
     users.forEach(user => {
-        sqlQuery += `UPDATE Users SET username = '${user.username}', password = '${user.password}' WHERE id = ${user.id}; `;
+        sqlQuery += `UPDATE Users SET username = '${user.username}', password = '${user.password}', fullName = '${user.fullName}', phone = '${user.phone}', address = '${user.address}', email = '${user.email}' WHERE id = ${user.id}; `;
     });
     sqlQuery += 'COMMIT;';
     await sqldata.executeQuery(sqlQuery);
-}
-
-async function deleteUser(userId) {
-    const sqlQuery = "DELETE FROM Users WHERE Id = ?";
-    return await sqldata.executeQuery(sqlQuery, userId);
 }
 
 async function deleteUsers(users) {
@@ -78,13 +78,13 @@ async function deleteUsers(users) {
 }
 
 module.exports = {
-    getUserById,
-    getUsers,
-    createUser,
-    createUsers,
+    getUserById,  
+    createUser,  
     updateUser,
-    updateUsers,
     deleteUser,
+    getUsers,
+    createUsers,
+    updateUsers,
     deleteUsers
 };
 
