@@ -2,9 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user.controllers');
-// Định tuyến GET cho trang chủ user
-
-
+// Định tuyến cho trang user
 
 router.get('/list',userController.getUsers);
 router.post('/list', userController.createUsers);

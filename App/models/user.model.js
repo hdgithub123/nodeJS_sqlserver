@@ -53,7 +53,10 @@ async function getUsers() {
 }
 async function createUsers(users) {
     const placeholders = users.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',');
-    const values = users.flatMap(user => [user.id, user.username, user.password, user.fullName, user.phone, user.address, user.email]);
+    const values = users.map(user => {
+        const hashedPassword = bcrypt.hashSync(user.password, 10); // Mã hóa mật khẩu với bcrypt
+        return [user.id, user.username, hashedPassword, user.fullName, user.phone, user.address, user.email];
+    }).flat();
     const sqlQuery = `INSERT INTO Users (id, username, password, fullName, phone, address, email) VALUES ${placeholders}`;
     await sqldata.executeQuery(sqlQuery, ...values);
 }
