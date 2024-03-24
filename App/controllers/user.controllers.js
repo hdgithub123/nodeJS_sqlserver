@@ -75,7 +75,6 @@ async function updateUsers(req, res) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
         await userModel.updateUsers(users); // Gọi hàm updateUsers từ model
-        console.log(users)
         res.status(200).json({ success: true, message: 'Users updated successfully' });
     } catch (error) {
         console.error(error);
@@ -102,8 +101,12 @@ async function deleteUser(req, res) {
 async function deleteUsers(req, res) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
-        await userModel.deleteUsers(users); // Gọi hàm deleteUsers từ model
-        res.status(204).json({ success: true, message: 'Users deleted successfully' });
+        const { Result, Status } = await userModel.deleteUsers(users);
+        if (Status) {
+            res.status(202).json({ success: true, data: null });
+        } else {
+            res.status(400).json({ success: false, message: Result.message });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Internal Server Error' });

@@ -55,12 +55,10 @@ async function createUsers(users) {
     const placeholders = users.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(',');
     const values = users.flatMap(user => [user.id, user.username, user.password, user.fullName, user.phone, user.address, user.email]);
     const sqlQuery = `INSERT INTO Users (id, username, password, fullName, phone, address, email) VALUES ${placeholders}`;
-    console.log(sqlQuery);
     await sqldata.executeQuery(sqlQuery, ...values);
 }
 
 async function updateUsers(users) {
-    console.log("Dang vao update")
     let sqlQuery = 'BEGIN TRANSACTION;';
     users.forEach(user => {
         // Chuyển đổi giá trị id từ chuỗi sang số nguyên
@@ -78,39 +76,19 @@ async function updateUsers(users) {
     })
 
     sqlQuery += 'COMMIT;';
-    console.log(sqlQuery)
     const values = users.flatMap(user => [user.username, user.fullName, user.phone, user.address, user.email, user.id]);
-    console.log(values)
     await sqldata.executeQuery(sqlQuery, ...values);
 }
 
-// async function updateUsers(users) {
-//     let sqlQuery = 'BEGIN TRANSACTION; ';
-//     for (const user of users) {
-//         // Mã hóa mật khẩu mới nếu có
-//         if (user.password) {
-//             const hashedPassword = await bcrypt.hash(user.password, 10); // Mã hóa mật khẩu với bcrypt
-//             sqlQuery += `UPDATE Users SET username = ?, password = ?, fullName = ?, phone = ?, address = ?, email = ? WHERE id = ?; `;
-//             const values = [user.username, hashedPassword, user.fullName, user.phone, user.address, user.email, user.id];
-//             console.log("1",sqlQuery)
-//             await sqldata.executeQuery(sqlQuery, ...values);
-//         } else {
-//             sqlQuery += `UPDATE Users SET username = ?, fullName = ?, phone = ?, address = ?, email = ? WHERE id = ?; `;
-//             const values = [user.username, user.fullName, user.phone, user.address, user.email, user.id];
-//             await sqldata.executeQuery(sqlQuery, ...values);
-//         }
-//         console.log("2",sqlQuery)
-//     }
-//     sqlQuery += 'COMMIT;';
-// }
-
+// xóa danh sách dạng user = [{"id" : 1},{"id" : 2},{"id" : 5},...]
 async function deleteUsers(users) {
     let sqlQuery = 'BEGIN TRANSACTION; ';
     users.forEach(user => {
         sqlQuery += `DELETE FROM Users WHERE id = ${user.id}; `;
     });
     sqlQuery += 'COMMIT;';
-    await sqldata.executeQuery(sqlQuery);
+    return await sqldata.executeQuery(sqlQuery);
+
 }
 
 module.exports = {

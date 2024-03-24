@@ -6,10 +6,10 @@ const userController = require('../controllers/user.controllers');
 
 
 
-router.get('/more',userController.getUsers);
-router.post('/more', userController.createUsers);
-router.put('/more', userController.updateUsers);
-router.delete('/more', userController.deleteUsers);
+router.get('/list',userController.getUsers);
+router.post('/list', userController.createUsers);
+router.put('/list', userController.updateUsers);
+router.delete('/list', userController.deleteUsers);
 
 //chú ý route cha phải được đặt sau route con
 router.get('/:id', userController.getUserById);
