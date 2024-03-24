@@ -61,7 +61,7 @@ async function createUsers(users) {
 
 async function updateUsers(users) {
     console.log("Dang vao update")
-    let sqlQuery = 'BEGIN TRANSACTION; ';
+    let sqlQuery = 'BEGIN TRANSACTION;';
     users.forEach(user => {
         // Chuyển đổi giá trị id từ chuỗi sang số nguyên
         const userId = parseInt(user.id);
@@ -70,15 +70,17 @@ async function updateUsers(users) {
             // Mã hóa mật khẩu mới nếu có
             if (user.password) {
                 const hashedPassword = bcrypt.hashSync(user.password, 10); // Mã hóa mật khẩu với bcrypt
-                sqlQuery += `UPDATE Users SET username = ?, password = '${hashedPassword}', fullName = ?, phone = ?, address = ?, email = ? WHERE id = ${userId}; `;
+                sqlQuery += `UPDATE Users SET username = ?, password = '${hashedPassword}', fullName = ?, phone = ?, address = ?, email = ? WHERE id = ?; `;
             } else {
-                sqlQuery += `UPDATE Users SET username = ?, fullName = ?, phone = ?, address = ?, email = ? WHERE id = ${userId}; `;
+                sqlQuery += `UPDATE Users SET username = ?, fullName = ?, phone = ?, address = ?, email = ? WHERE id = ?; `;
             }
         }
-    });
+    })
+
     sqlQuery += 'COMMIT;';
     console.log(sqlQuery)
-    const values = users.flatMap(user => [user.username, user.fullName, user.phone, user.address, user.email]);
+    const values = users.flatMap(user => [user.username, user.fullName, user.phone, user.address, user.email, user.id]);
+    console.log(values)
     await sqldata.executeQuery(sqlQuery, ...values);
 }
 
