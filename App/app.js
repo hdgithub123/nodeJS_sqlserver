@@ -15,6 +15,20 @@ const homeRoutes = require('./routes/home.routes');
 const profileRoutes = require('./routes/profile.routes');
 const userRoutes = require('./routes/user.routes');
 const loginRoutes = require('./routes/Login.routes');
+const authMiddleware = require('./Services/authorization');
+
+
+// Danh sách các đường dẫn không áp dụng middleware auth
+const protectedRoutes = ['/home', '/user/list', '/login'];
+
+app.use((req, res, next) => {
+    // Kiểm tra xem nếu đường dẫn của yêu cầu thuộc danh sách các trang không cần bảo vệ hoặc là một phần của chúng
+    if (!protectedRoutes.some(route => req.path.startsWith(route))) {
+        return authMiddleware(req, res, next); // Nếu là một trong các trang không cần bảo vệ, gọi middleware auth
+    }
+
+    next(); // Cho phép yêu cầu tiếp theo mà không cần xác thực
+});
 
 // Sử dụng router
 app.use('/', homeRoutes);
