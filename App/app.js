@@ -18,7 +18,7 @@ const loginRoutes = require('./routes/Login.routes');
 const authMiddleware = require('./Services/authorization');
 
 
-// Danh sách các đường dẫn không áp dụng middleware auth
+// Danh sách các đường dẫn không áp dụng middleware auth vd const protectedRoutes = ['/home', '/user/list', '/login'];
 const protectedRoutes = ['/home', '/user/list', '/login'];
 
 app.use((req, res, next) => {
