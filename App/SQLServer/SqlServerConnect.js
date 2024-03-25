@@ -135,7 +135,7 @@ async function insertObjects(table, data) {
  * Updates data in a specified table based on a specified column.
  * @param {string} table - The name of the table to update data in.
  * @param {Array<Object>} data - An array of objects representing the data to be updated. Each object should have keys corresponding to the table columns.
- * @param {Object} columKey - An object containing the column name and its corresponding value for comparison in the WHERE clause for the update operation.
+ * @param {Array<string>} columKey - An array containing the names of the columns used for comparison in the WHERE clause for the update operation.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the update operation.
  */
 async function updateObjects(table, data, columKey) {
