@@ -141,14 +141,12 @@ async function insertObjects(table, data) {
 async function updateObjects(table, data, columKey) {
     try {
         let sqlQuery = 'BEGIN TRANSACTION; ';
-        let allValues = "";
+        let allValues = [];
         // Iterate through each object in data
         data.forEach(item => {
             // Initialize setClause, whereClause, và itemValues
             let setClause = '';
-            let whereClause = '';
-            let itemValues = '';
-        
+            let whereClause = '';     
             // Iterate through keys of the item
             Object.keys(item).forEach(key => {
                 // Check if the key exists in columKey
@@ -157,7 +155,7 @@ async function updateObjects(table, data, columKey) {
                 } else {
                     // Append to setClause và itemValues
                     setClause += `${key} = ?, `;
-                    itemValues += `${item[key]}, `;
+                    allValues.push(item[key]);
                 }
             });
 
@@ -166,7 +164,7 @@ async function updateObjects(table, data, columKey) {
                 if (columKey.includes(key)) {
                     // Append to whereClause và itemValues
                     whereClause += `${key} = ? AND `;
-                    itemValues += `${item[key]}, `;
+                    allValues.push(item[key]);
                 } else {
 
                 }
@@ -179,15 +177,9 @@ async function updateObjects(table, data, columKey) {
             // Append the UPDATE statement to the SQL query
             sqlQuery += `UPDATE ${table} SET ${setClause} WHERE ${whereClause}; `;
         
-            // Append itemValues to allValues
-            allValues += itemValues;
         });
-        // Remove trailing comma from allValues
-        allValues = allValues.slice(0, -2);
 
         sqlQuery += 'COMMIT;';
-        console.log("sqlQuery",sqlQuery)
-        console.log("allValues",allValues)
         // Execute the SQL query with values
         const { Result, Status } = await executeQuery(sqlQuery, ...allValues);
 
@@ -197,10 +189,6 @@ async function updateObjects(table, data, columKey) {
         return { Result: error, Status: false };
     }
 }
-
-
-
-
 
 /**
  * Deletes data from a specified table based on specified columns and their corresponding values.

@@ -82,18 +82,14 @@ async function updateUsers(users) {
             }
             return user;
         }));
-
-        // Tạo mảng columKey dựa trên user.id
-        const columKey = ["id"]
-        console.log("columKey",columKey)
-        console.log("hashedUsers",hashedUsers)
-
-        return await sqldata.updateObjects("Users", hashedUsers, columKey);
+        // Cập nhật người dùng trong cơ sở dữ liệu
+        return await sqldata.updateObjects("Users", hashedUsers, ["id"]);
     } catch (error) {
         console.error(error);
         return { success: false, message: "Error updating users" };
     }
 }
+
 
 
 
