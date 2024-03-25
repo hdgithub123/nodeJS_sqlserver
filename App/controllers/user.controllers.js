@@ -30,10 +30,10 @@ async function getUsers(req, res) {
     }
 }
 
-async function createUser(req, res) {
+async function insertUser(req, res) {
     try {
         const user = req.body;
-        const { Result, Status } = await userModel.createUser(user);
+        const { Result, Status } = await userModel.insertUser(user);
         if (Status) {
             res.status(201).json({ success: true, data: Result });
         } else {
@@ -45,10 +45,10 @@ async function createUser(req, res) {
     }
 }
 
-async function createUsers(req, res) {
+async function insertUsers(req, res) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
-        await userModel.createUsers(users); // Gọi hàm insertUsers từ model
+        await userModel.insertUsers(users); // Gọi hàm insertUsers từ model
         res.status(201).json({ success: true, message: 'Users inserted successfully' });
     } catch (error) {
         console.error(error);
@@ -116,8 +116,8 @@ async function deleteUsers(req, res) {
 module.exports = {
     getUserById,
     getUsers,
-    createUser,
-    createUsers,
+    insertUser,
+    insertUsers,
     updateUser,
     updateUsers,
     deleteUser,

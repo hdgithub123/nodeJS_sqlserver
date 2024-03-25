@@ -3,7 +3,8 @@ const sqlstring = require('sqlstring');
 
 require('dotenv').config();
 
-/**Executes an SQL query on the database and returns the result of the query.
+/**
+ * Executes an SQL query on the database and returns the result of the query.
  * @param {string} sqlQuery - The SQL query to be executed.
  * @param {...any} params - The parameters used in the SQL query.
  * @returns {Promise<{ Result: any, Status: boolean }>} - A promise resolved with an object containing the query result and its status.
@@ -43,7 +44,8 @@ async function executeQuery(sqlQuery, ...params) {
     }
 }
 
-/**Inserts an object into a specified table.
+/**
+ *Inserts an object into a specified table.
  * @param {string} table - The name of the table to insert data into.
  * @param {Object} object - An object representing the data to be inserted. It should have keys corresponding to the table columns.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the insert operation.
@@ -62,20 +64,22 @@ async function insertObject(table, object) {
     }
 }
 
-/**Updates data in a specified table based on the value of a specified key.
- * 
+/**
+ * Updates data in a specified table based on a specified column.
  * @param {string} table - The name of the table to update data in.
  * @param {Object} object - An object representing the updated data. It should have keys corresponding to the table columns.
- * @param {string} idKey - The name of the key column to use in the WHERE clause for the update operation.
+ * @param {string} columKey - The name of the column to use in the WHERE clause for the update operation.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the update operation.
  */
-async function updateObject(table, object, idKey) {
+async function updateObject(table, object, columKey) {
     try {
-        const keys = Object.keys(object).filter(key => key !== idKey);
-        const setClause = keys.map(key => `${key} = ?`).join(',');
-        const sqlQuery = `UPDATE ${table} SET ${setClause} WHERE ${idKey} = ?`;
-        const values = [...keys.map(key => object[key]), object[idKey]];
-        const { Result, Status } = await executeQuery(sqlQuery, ...values);
+        const keys = Object.keys(object); // Get the keys from the object
+        const setClause = keys.map(key => `${key} = ?`).join(','); // Create the SET clause for the update
+        const values = Object.values(object); // Get the values to be updated
+        const whereClause = Object.keys(columKey).map(key => `${key} = ?`).join(' AND '); // Create the WHERE clause
+        const whereValues = Object.values(columKey); // Get the values for the WHERE clause
+        const sqlQuery = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`; // Create the SQL query
+        const { Result, Status } = await executeQuery(sqlQuery, ...values, ...whereValues); // Execute the query
         return { Result, Status };
     } catch (error) {
         console.error(error);
@@ -83,17 +87,19 @@ async function updateObject(table, object, idKey) {
     }
 }
 
-/** Deletes an object from a specified table based on the value of a specified key.
+/**
+ * Deletes data from a specified table based on specified columns and their corresponding values.
  * @param {string} table - The name of the table to delete data from.
- * @param {Object} object - An object representing the data to be deleted. It should have keys corresponding to the table columns.
- * @param {string} idKey - The name of the key column to use in the WHERE clause for the delete operation.
+ * @param {Object} columKey - An object containing column names and their corresponding values for comparison in the WHERE clause for the delete operation.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the delete operation.
  */
-async function deleteObject(table, object, idKey) {
+async function deleteObject(table, columKey) {
     try {
-        const sqlQuery = `DELETE FROM ${table} WHERE ${idKey} = ?`;
-        const { Result, Status } = await sqldata.executeQuery(sqlQuery, object[idKey]);
-        return { Result, Status };
+        const setClause = Object.keys(columKey).map(key => `${key} = ?`).join(' AND '); // Create the SET clause for the delete
+        const values = Object.values(columKey); // Get the values to be used in the WHERE clause
+        const sqlQuery = `DELETE FROM ${table} WHERE ${setClause}`; // Create the SQL query
+        const { Result, Status } = await executeQuery(sqlQuery, ...values); // Execute the query
+        return { Result: null, Status:true };
     } catch (error) {
         console.error(error);
         return { Result: error, Status: false };
@@ -101,12 +107,13 @@ async function deleteObject(table, object, idKey) {
 }
 
 
-/*** Inserts data into a specified table.
+/*** 
+ *Inserts data into a specified table.
  * @param {string} table - The name of the table to insert data into.
  * @param {Array<Object>} data - An array of objects representing the data to be inserted. Each object should have keys corresponding to the table columns.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the insertion operation.
  */
-async function insertData(table, data) {
+async function insertObjects(table, data) {
     try {
         const keys = Object.keys(data[0]); // Lấy danh sách các trường từ object đầu tiên
         const placeholders = keys.map(() => '?').join(','); // Tạo chuỗi placeholders cho các giá trị
@@ -124,48 +131,65 @@ async function insertData(table, data) {
     }
 }
 
-/**Updates data in a specified table based on a specified key.
+/**
+ * Updates data in a specified table based on a specified column.
  * @param {string} table - The name of the table to update data in.
  * @param {Array<Object>} data - An array of objects representing the data to be updated. Each object should have keys corresponding to the table columns.
- * @param {string} idKey - The name of the key column to use in the WHERE clause for the update operation.
+ * @param {Object} columKey - An object containing the column name and its corresponding value for comparison in the WHERE clause for the update operation.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the update operation.
  */
-async function updateData(table, data, idKey) {
-    try {
-        const keys = Object.keys(data[0]); // Lấy danh sách các trường từ object đầu tiên
-        const columns = keys.filter(key => key !== idKey).join(','); // Lọc ra danh sách các trường cần cập nhật (loại bỏ idKey)
-        const placeholders = keys.map(key => (key !== idKey ? `${key} = ?` : '')).filter(Boolean).join(','); // Tạo chuỗi placeholders cho các giá trị cần cập nhật
-        const values = data.flatMap(item => (item[idKey] ? Object.values(item) : [])); // Lọc ra giá trị cần cập nhật (loại bỏ các dòng không có idKey)
-
-        const sqlQuery = `UPDATE ${table} SET ${placeholders} WHERE ${idKey} = ?`; // Tạo câu truy vấn update
-        
-        const { Result, Status } = await executeQuery(sqlQuery, ...values); // Thực thi truy vấn
-
-        return { Result, Status };
-    } catch (error) {
-        console.error(error);
-        return { Result: error, Status: false };
-    }
-}
-
-/**Deletes data from a specified table based on a specified key.
- * @param {string} table - The name of the table to delete data from.
- * @param {Array<Object>} data - An array of objects representing the data to be deleted. Each object should have keys corresponding to the table columns.
- * @param {string} idKey - The name of the key column to use in the WHERE clause for the delete operation.
- * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the delete operation.
- */
-async function deleteData(table, data, idKey) {
+async function updateObjects(table, data, columKey) {
     try {
         let sqlQuery = 'BEGIN TRANSACTION; ';
+        let allValues = "";
+        // Iterate through each object in data
         data.forEach(item => {
-            const idKeyValue = item[idKey]; // Get the value of the specified key column
-            sqlQuery += `DELETE FROM ${table} WHERE ${idKey} = ?; `;
+            // Initialize setClause, whereClause, và itemValues
+            let setClause = '';
+            let whereClause = '';
+            let itemValues = '';
+        
+            // Iterate through keys of the item
+            Object.keys(item).forEach(key => {
+                // Check if the key exists in columKey
+                if (columKey.includes(key)) {
+
+                } else {
+                    // Append to setClause và itemValues
+                    setClause += `${key} = ?, `;
+                    itemValues += `${item[key]}, `;
+                }
+            });
+
+            Object.keys(item).forEach(key => {
+                // Check if the key exists in columKey
+                if (columKey.includes(key)) {
+                    // Append to whereClause và itemValues
+                    whereClause += `${key} = ? AND `;
+                    itemValues += `${item[key]}, `;
+                } else {
+
+                }
+            });
+        
+            // Remove trailing commas from setClause và whereClause
+            setClause = setClause.replace(/,\s*$/, '');
+            whereClause = whereClause.replace(/ AND\s*$/, '');
+        
+            // Append the UPDATE statement to the SQL query
+            sqlQuery += `UPDATE ${table} SET ${setClause} WHERE ${whereClause}; `;
+        
+            // Append itemValues to allValues
+            allValues += itemValues;
         });
+        // Remove trailing comma from allValues
+        allValues = allValues.slice(0, -2);
+
         sqlQuery += 'COMMIT;';
-        
-        const values = data.map(item => item[idKey]); // Get an array of id values
-        
-        const { Result, Status } = await executeQuery(sqlQuery, ...values); // Execute the query
+        console.log("sqlQuery",sqlQuery)
+        console.log("allValues",allValues)
+        // Execute the SQL query with values
+        const { Result, Status } = await executeQuery(sqlQuery, ...allValues);
 
         return { Result, Status };
     } catch (error) {
@@ -174,14 +198,49 @@ async function deleteData(table, data, idKey) {
     }
 }
 
+
+
+
+
+/**
+ * Deletes data from a specified table based on specified columns and their corresponding values.
+ * @param {string} table - The name of the table to delete data from.
+ * @param {Object} columKey - An object containing column names and their corresponding values for comparison in the WHERE clause for the delete operation.
+ * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the delete operation.
+ */
+async function deleteObjects(table, columKey) {
+    try {
+        let sqlQuery = 'BEGIN TRANSACTION; ';
+        
+        columKey.forEach(obj => {
+            const conditions = [];
+            for (const key in obj) {
+                if (Object.hasOwnProperty.call(obj, key)) {
+                    const value = obj[key];
+                    conditions.push(`${key} = '${value}'`);
+                }
+            }
+            const whereClause = conditions.join(' AND ');
+            sqlQuery += `DELETE FROM ${table} WHERE ${whereClause}; `;
+        });
+
+        sqlQuery += 'COMMIT;';
+        
+        const { Result, Status } = await executeQuery(sqlQuery); // Execute the query
+        return { Result, Status };
+    } catch (error) {
+        console.error(error);
+        return { Result: error, Status: false };
+    }
+}
+
+
 module.exports = { 
+    executeQuery,
     insertObject,
     updateObject,
     deleteObject,
-    executeQuery,
-    insertData,
-    updateData,
-    deleteData
-
+    insertObjects,
+    updateObjects,
+    deleteObjects
 };
-
