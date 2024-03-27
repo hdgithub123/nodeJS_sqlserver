@@ -10,7 +10,7 @@ router.put('/list', userController.updateUsers);
 router.delete('/list', userController.deleteUsers);
 
 //chú ý route cha phải được đặt sau route con
-router.get('/:id', userController.getUserById);
+router.get('/:id', userController.getUserByusername);
 router.post('/', userController.insertUser);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);

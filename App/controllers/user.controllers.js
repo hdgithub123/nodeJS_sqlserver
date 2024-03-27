@@ -2,10 +2,10 @@ const sqldata = require("../SQLServer/SqlServerConnect");
 const userModel = require("../models/user.model");
 
 
-async function getUserById(req, res) {
+async function getUserByusername(req, res) {
     try {
-        const userId = req.params.id;
-        const { Result, Status } = await userModel.getUserById(userId);
+        const username = req.params.id;
+        const { Result, Status } = await userModel.getUserById(username);
         if (Status && Result.length > 0) {
             res.status(200).json({ success: true, data: Result[0] });
         } else {
@@ -114,7 +114,7 @@ async function deleteUsers(req, res) {
 }
 
 module.exports = {
-    getUserById,
+    getUserByusername,
     getUsers,
     insertUser,
     insertUsers,

@@ -2,23 +2,30 @@ use MYDATABASE
 go
 
 CREATE TABLE [users] (
-    id INT PRIMARY KEY,
+    id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     username NVARCHAR(50) UNIQUE,
     password NVARCHAR(100),
     fullName NVARCHAR(100),
     phone NVARCHAR(20),
     address NVARCHAR(255),
-    email NVARCHAR(100)
+    email NVARCHAR(100),
+    avatar NVARCHAR(255)
 );
 
 
-INSERT INTO [users] (id, username, password, fullName, phone, address, email)
-VALUES
-    (1, N'admin', N'adminpassword', N'Admin User', N'1234567890', N'123 Main St, City, Country', N'admin@example.com'),
-    (2, N'user1', N'user1password', N'User 1', N'0987654321', N'456 Park Ave, City, Country', N'user1@example.com'),
-    (3, N'user2', N'user2password', N'User 2', N'5555555555', N'789 Elm St, City, Country', N'user2@example.com'),
-    (4, N'user3', N'user3password', N'User 3', N'3333333333', N'321 Oak St, City, Country', N'user3@example.com'),
-    (5, N'user4', N'user4password', N'User 4', N'7777777777', N'654 Pine St, City, Country', N'user4@example.com');
+
+INSERT INTO [users] (id, username, password, fullName, phone, address, email, avatar) 
+VALUES 
+    (NEWID(), 'user1', 'password1', 'Full Name 1', '1234567890', 'Address 1', 'user1@example.com', 'avatar1.jpg'),
+    (NEWID(), 'user2', 'password2', 'Full Name 2', '1234567891', 'Address 2', 'user2@example.com', 'avatar2.jpg'),
+    (NEWID(), 'user3', 'password3', 'Full Name 3', '1234567892', 'Address 3', 'user3@example.com', 'avatar3.jpg'),
+    (NEWID(), 'user4', 'password4', 'Full Name 4', '1234567893', 'Address 4', 'user4@example.com', 'avatar4.jpg'),
+    (NEWID(), 'user5', 'password5', 'Full Name 5', '1234567894', 'Address 5', 'user5@example.com', 'avatar5.jpg'),
+    (NEWID(), 'user6', 'password6', 'Full Name 6', '1234567895', 'Address 6', 'user6@example.com', 'avatar6.jpg'),
+    (NEWID(), 'user7', 'password7', 'Full Name 7', '1234567896', 'Address 7', 'user7@example.com', 'avatar7.jpg'),
+    (NEWID(), 'user8', 'password8', 'Full Name 8', '1234567897', 'Address 8', 'user8@example.com', 'avatar8.jpg'),
+    (NEWID(), 'user9', 'password9', 'Full Name 9', '1234567898', 'Address 9', 'user9@example.com', 'avatar9.jpg'),
+    (NEWID(), 'user10', 'password10', 'Full Name 10', '1234567899', 'Address 10', 'user10@example.com', 'avatar10.jpg');
 
 
 

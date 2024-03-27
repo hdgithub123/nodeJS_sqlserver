@@ -2,9 +2,9 @@ const bcrypt = require('bcrypt');
 const sqldata = require("../SQLServer/SqlServerConnect");
 // lấy tất cả users trên csdl
 
-async function getUserById(userId) {
-    const sqlQuery = "SELECT * FROM Users WHERE Id = ?";
-    return await sqldata.executeQuery(sqlQuery, userId);
+async function getUserById(userName) {
+    const sqlQuery = "SELECT * FROM Users WHERE userName = ?";
+    return await sqldata.executeQuery(sqlQuery, userName);
 }
 async function getUsers() {
     // Logic để lấy thông tin người dùng từ cơ sở dữ liệu
@@ -20,9 +20,9 @@ async function getUsers() {
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the insertion operation.
  */
 async function insertUser(user) {
-    const { id, username, password, fullName, phone, address, email } = user;
+    const { username, password, fullName, phone, address, email } = user;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const reuser = { id, username, password: hashedPassword, fullName, phone, address, email }
+    const reuser = { username, password: hashedPassword, fullName, phone, address, email }
     return await sqldata.insertObject("Users", reuser);
 }
 
