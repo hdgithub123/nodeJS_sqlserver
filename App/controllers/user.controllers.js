@@ -4,7 +4,7 @@ const userModel = require("../models/user.model");
 
 async function getUserByusername(req, res) {
     try {
-        const username = req.params.id;
+        const username = req.params.username;
         const { Result, Status } = await userModel.getUserById(username);
         if (Status && Result.length > 0) {
             res.status(200).json({ success: true, data: Result[0] });
