@@ -16,10 +16,9 @@ loginAuthenticate  = async(req, res) => {
     const password = req.body.password
     const result = await authenticate(username, password);
     if (result.success) {
-        const oneDayInSeconds = 60 * 60 * 24; // Số giây trong một ngày
         const cookieOptions = {
                 httpOnly: true,
-                expires: new Date(Date.now() + oneDayInSeconds * 1000) // Thời gian hết hạn, tính bằng milliseconds
+                expires: new Date(Date.now() + 86400000) // Thời gian hết hạn, tính bằng milliseconds( 1 ngày)
             };
         res.cookie('token', result.token, cookieOptions);
         res.json({ success: true, token: result.token });
