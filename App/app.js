@@ -24,7 +24,7 @@ const authMiddleware = require('./Services/authorization');
 
 
 // Danh sách các đường dẫn không áp dụng middleware auth vd const protectedRoutes = ['/home', '/user/list', '/login'];
-const protectedRoutes = ['/home', '/user', '/login'];
+const protectedRoutes = [ '/user', '/login'];
 
 app.use((req, res, next) => {
     // Kiểm tra xem nếu đường dẫn của yêu cầu thuộc danh sách các trang không cần bảo vệ hoặc là một phần của chúng

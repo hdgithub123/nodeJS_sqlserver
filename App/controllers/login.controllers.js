@@ -16,7 +16,12 @@ loginAuthenticate  = async(req, res) => {
     const password = req.body.password
     const result = await authenticate(username, password);
     if (result.success) {
-        res.cookie('token', result.token, { httpOnly: true });// set cookie truoc khi trả ra json
+        const oneDayInSeconds = 60 * 60 * 24; // Số giây trong một ngày
+        const cookieOptions = {
+                httpOnly: true,
+                expires: new Date(Date.now() + oneDayInSeconds * 1000) // Thời gian hết hạn, tính bằng milliseconds
+            };
+        res.cookie('token', result.token, cookieOptions);
         res.json({ success: true, token: result.token });
     } else {
         res.status(401).json({ success: false, message: result.message });
