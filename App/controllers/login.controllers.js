@@ -28,8 +28,6 @@ loginAuthenticate  = async(req, res) => {
     }
 }
 
-
-
 module.exports = {
     login,
     loginAuthenticate,
