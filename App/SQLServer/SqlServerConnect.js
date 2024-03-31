@@ -9,40 +9,50 @@ require('dotenv').config();
  * @param {...any} params - The parameters used in the SQL query.
  * @returns {Promise<{ Result: any, Status: boolean }>} - A promise resolved with an object containing the query result and its status.
  */
-async function executeQuery(sqlQuery, ...params) {
-    
-    const port = process.env.PORT || 9000;
-    const config = {
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        server: process.env.DB_SERVER,
-        port: port,
-        database: process.env.DB_DATABASE,
-        options: {
-            trustServerCertificate: true,
-            encrypt: false // Tắt SSL/TLS ở đây
-        }
-    };
-
+let pool;
+const initializePool = async () => {
+    if (!pool) {
+        const port = process.env.PORT || 9000;
+        const config = {
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            server: process.env.DB_SERVER,
+            port: port,
+            database: process.env.DB_DATABASE,
+            options: {
+                trustServerCertificate: true,
+                encrypt: false // Tắt SSL/TLS ở đây
+            }
+        };
+        pool = await new sql.ConnectionPool(config).connect();
+    }
+    return pool;
+};
+const executeQuery = async (sqlQuery, ...params) => {
     try {
-        const pool = await sql.connect(config);
+        const pool = await initializePool();
+        const request = pool.request();
+        params.forEach((param, index) => {
+            request.input(`param${index + 1}`, param);
+        });
         
-        // Tạo truy vấn có tham số với sqlstring
-        const query = sqlstring.format(sqlQuery, params);
-        
-        const result = await pool.request().query(query); // Thực thi truy vấn bằng pool.request().query()
+        // Thay thế các dấu ? trong sqlQuery bằng tên tham số tương ứng
+        let modifiedSqlQuery = sqlQuery;
+        for (let i = 1; i <= params.length; i++) {
+            modifiedSqlQuery = modifiedSqlQuery.replace(`?`, `@param${i}`);
+        }
+
+        const result = await request.query(modifiedSqlQuery);
         console.log("COMPLETED CONNECTION TO DATABASE");
-        // Trả về kết quả thành công
         return { Result: result.recordset, Status: true };
     } catch (err) {
         console.error(err);
-        // Trả về thông báo lỗi
         console.log("ERROR CONNECTION TO DATABASE");
         return { Result: err, Status: false };
-    } finally {
-        await sql.close();
     }
-}
+};
+
+
 
 /**
  *Inserts an object into a specified table.
@@ -113,15 +123,14 @@ async function deleteObject(table, columKey) {
  * @param {Array<Object>} data - An array of objects representing the data to be inserted. Each object should have keys corresponding to the table columns.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the insertion operation.
  */
-async function insertObjects(table, data) {
+ async function insertObjects(table, data) {
     try {
         const keys = Object.keys(data[0]); // Lấy danh sách các trường từ object đầu tiên
-        const placeholders = keys.map(() => '?').join(','); // Tạo chuỗi placeholders cho các giá trị
+        const placeholders = data.map(() => `(${keys.map(() => '?').join(',')})`).join(','); // Tạo chuỗi placeholders cho các giá trị
         const columns = keys.join(','); // Tạo chuỗi các trường cần insert
         const values = data.flatMap(item => Object.values(item)); // Tạo mảng giá trị từ mảng dữ liệu
         
-        const sqlQuery = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`; // Tạo câu truy vấn insert
-        
+        const sqlQuery = `INSERT INTO ${table} (${columns}) VALUES ${placeholders};`; // Tạo câu truy vấn insert
         const { Result, Status } = await executeQuery(sqlQuery, ...values); // Thực thi truy vấn
 
         return { Result, Status };
@@ -130,6 +139,7 @@ async function insertObjects(table, data) {
         return { Result: error, Status: false };
     }
 }
+
 
 /**
  * Updates data in a specified table based on a specified column.
