@@ -2,17 +2,18 @@
 const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 require('dotenv').config();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // bổ sung để dữ liệu từ bên ngoài có thể nhận được
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-  });
+// app.use((req, res, next) => {
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//     next();
+//   });
 
 
 // Import router
@@ -22,6 +23,11 @@ const userRoutes = require('./routes/user.routes');
 const loginRoutes = require('./routes/Login.routes');
 const authMiddleware = require('./Services/authorization');
 
+
+app.use(cors({
+  origin: 'http://localhost:4001', // Thay bằng domain của client
+  credentials: true
+}));
 
 // Danh sách các đường dẫn không áp dụng middleware auth vd const protectedRoutes = ['/home', '/user/list', '/login'];
 const protectedRoutes = [ '/user', '/login','/list'];

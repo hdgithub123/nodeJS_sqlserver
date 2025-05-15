@@ -19,7 +19,8 @@ loginAuthenticate  = async(req, res) => {
         const cookieOptions = {
                 httpOnly: true,
                 secure: false, // Chỉ gửi cookie qua HTTPS
-                sameSite: 'Strict',
+                // sameSite: 'Strict',
+                sameSite:'Lax',
                 expires: new Date(Date.now() + 86400000) // Thời gian hết hạn, tính bằng milliseconds( 1 ngày)
             };
         res.cookie('RefreshToken', result.refreshToken, cookieOptions);
