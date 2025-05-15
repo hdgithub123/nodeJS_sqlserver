@@ -1,15 +1,16 @@
 const bcrypt = require('bcrypt');
-const sqldata = require("../SQLServer/SqlServerConnect");
+const sqldata = require("../config/SQLServer/SqlServerConnect");
+const sqldata2 = require("../config/SQLServer/excuteSqlServer");
 // lấy tất cả users trên csdl
 
 async function getUserById(userName) {
     const sqlQuery = "SELECT * FROM Users WHERE userName = ?";
-    return await sqldata.executeQuery(sqlQuery, userName);
+    return await sqldata2.executeSqlServerQuery(sqlQuery, [userName]);
 }
 async function getUsers() {
     // Logic để lấy thông tin người dùng từ cơ sở dữ liệu
     const Sqlstring = "Select * from users";
-    const data = await sqldata.executeQuery(Sqlstring);
+    const data = await sqldata2.executeSqlServerQuery(Sqlstring);
     return data;
 
 }
@@ -23,7 +24,7 @@ async function insertUser(user) {
     const { username, password, fullName, phone, address, email } = user;
     const hashedPassword = await bcrypt.hash(password, 10);
     const reuser = { username, password: hashedPassword, fullName, phone, address, email }
-    return await sqldata.insertObject("Users", reuser);
+    return await sqldata.insertObject("Users", [reuser]);
 }
 
 /**

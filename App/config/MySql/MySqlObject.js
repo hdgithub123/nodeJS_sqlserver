@@ -1,58 +1,7 @@
 const sql = require('mssql');
 const sqlstring = require('sqlstring');
-
+const { executeMySqlQuery } = require('./executeQuery');
 require('dotenv').config();
-
-/**
- * Executes an SQL query on the database and returns the result of the query.
- * @param {string} sqlQuery - The SQL query to be executed.
- * @param {...any} params - The parameters used in the SQL query.
- * @returns {Promise<{ Result: any, Status: boolean }>} - A promise resolved with an object containing the query result and its status.
- */
-let pool;
-const initializePool = async () => {
-    if (!pool) {
-        const port = process.env.PORT || 9000;
-        const config = {
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            server: process.env.DB_SERVER,
-            port: port,
-            database: process.env.DB_DATABASE,
-            options: {
-                trustServerCertificate: true,
-                encrypt: false // Tắt SSL/TLS ở đây
-            }
-        };
-        pool = await new sql.ConnectionPool(config).connect();
-    }
-    return pool;
-};
-const executeQuery = async (sqlQuery, ...params) => {
-    try {
-        const pool = await initializePool();
-        const request = pool.request();
-        params.forEach((param, index) => {
-            request.input(`param${index + 1}`, param);
-        });
-        
-        // Thay thế các dấu ? trong sqlQuery bằng tên tham số tương ứng
-        let modifiedSqlQuery = sqlQuery;
-        for (let i = 1; i <= params.length; i++) {
-            modifiedSqlQuery = modifiedSqlQuery.replace(`?`, `@param${i}`);
-        }
-
-        const result = await request.query(modifiedSqlQuery);
-        console.log("COMPLETED CONNECTION TO DATABASE");
-        return { Result: result.recordset, Status: true };
-    } catch (err) {
-        console.error(err);
-        console.log("ERROR CONNECTION TO DATABASE");
-        return { Result: err, Status: false };
-    }
-};
-
-
 
 /**
  *Inserts an object into a specified table.
@@ -66,11 +15,10 @@ async function insertObject(table, object) {
         const placeholders = keys.map(() => '?').join(',');
         const values = keys.map(key => object[key]);
         const sqlQuery = `INSERT INTO ${table} (${keys.join(',')}) VALUES (${placeholders})`;
-        const { Result, Status } = await executeQuery(sqlQuery, ...values);
-        return { Result, Status };
+        const { data, status,errorCode } = await executeMySqlQuery(sqlQuery, values);
+        return { data:data, status:status, errorCode: errorCode };
     } catch (error) {
-        console.error(error);
-        return { Result: error, Status: false };
+        return { data: null, status: false, errorCode: error.code || 'UNKNOWN_ERROR' };
     }
 }
 
@@ -79,7 +27,7 @@ async function insertObject(table, object) {
  * @param {string} table - The name of the table to update data in.
  * @param {Object} object - An object representing the updated data. It should have keys corresponding to the table columns.
  * @param {string} columKey - The name of the column to use in the WHERE clause for the update operation.
- * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the update operation.
+ * @returns {Promise<{data: Object, status: error}>} - An object containing the result and status of the update operation.
  */
 async function updateObject(table, object, columKey) {
     try {
@@ -89,11 +37,11 @@ async function updateObject(table, object, columKey) {
         const whereClause = Object.keys(columKey).map(key => `${key} = ?`).join(' AND '); // Create the WHERE clause
         const whereValues = Object.values(columKey); // Get the values for the WHERE clause
         const sqlQuery = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`; // Create the SQL query
-        const { Result, Status } = await executeQuery(sqlQuery, ...values, ...whereValues); // Execute the query
-        return { Result, Status };
+        const { data, status, errorCode } = await executeMySqlQuery(sqlQuery, [...values, ...whereValues]); // Execute the query
+        return { data:data, status:status, errorCode:errorCode };
     } catch (error) {
         console.error(error);
-        return { Result: error, Status: false };
+        return { data: null, status: false, errorCode: error.code || 'UNKNOWN_ERROR' };
     }
 }
 
@@ -101,18 +49,18 @@ async function updateObject(table, object, columKey) {
  * Deletes data from a specified table based on specified columns and their corresponding values.
  * @param {string} table - The name of the table to delete data from.
  * @param {Object} columKey - An object containing column names and their corresponding values for comparison in the WHERE clause for the delete operation.
- * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the delete operation.
+ * @returns {Promise<{data: Object, status: error}>} - An object containing the result and status of the delete operation.
  */
 async function deleteObject(table, columKey) {
     try {
         const setClause = Object.keys(columKey).map(key => `${key} = ?`).join(' AND '); // Create the SET clause for the delete
         const values = Object.values(columKey); // Get the values to be used in the WHERE clause
         const sqlQuery = `DELETE FROM ${table} WHERE ${setClause}`; // Create the SQL query
-        const { Result, Status } = await executeQuery(sqlQuery, ...values); // Execute the query
-        return { Result: null, Status:true };
+        const { data, status, errorCode } = await executeMySqlQuery(sqlQuery, [values]); // Execute the query
+        return { data: data, status: status, errorCode: errorCode };
     } catch (error) {
         console.error(error);
-        return { Result: error, Status: false };
+        return { data: error, status: false, errorCode: error.code || 'UNKNOWN_ERROR' };
     }
 }
 
@@ -121,7 +69,7 @@ async function deleteObject(table, columKey) {
  *Inserts data into a specified table.
  * @param {string} table - The name of the table to insert data into.
  * @param {Array<Object>} data - An array of objects representing the data to be inserted. Each object should have keys corresponding to the table columns.
- * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the insertion operation.
+ * @returns {Promise<{data: Object, status: error}>} - An object containing the result and status of the insertion operation.
  */
  async function insertObjects(table, data) {
     try {
@@ -131,12 +79,11 @@ async function deleteObject(table, columKey) {
         const values = data.flatMap(item => Object.values(item)); // Tạo mảng giá trị từ mảng dữ liệu
         
         const sqlQuery = `INSERT INTO ${table} (${columns}) VALUES ${placeholders};`; // Tạo câu truy vấn insert
-        const { Result, Status } = await executeQuery(sqlQuery, ...values); // Thực thi truy vấn
-
-        return { Result, Status };
+        const { data, status,errorCode } = await executeMySqlQuery(sqlQuery, [values]); // Thực thi truy vấn
+        return { data: data, status: status, errorCode: errorCode };
     } catch (error) {
         console.error(error);
-        return { Result: error, Status: false };
+        return { data: null, status: false, errorCode: error.code || 'UNKNOWN_ERROR' };
     }
 }
 
@@ -146,7 +93,7 @@ async function deleteObject(table, columKey) {
  * @param {string} table - The name of the table to update data in.
  * @param {Array<Object>} data - An array of objects representing the data to be updated. Each object should have keys corresponding to the table columns.
  * @param {Array<string>} columKey - An array containing the names of the columns used for comparison in the WHERE clause for the update operation.
- * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the update operation.
+ * @returns {Promise<{data: Object, status: error}>} - An object containing the result and status of the update operation.
  */
 async function updateObjects(table, data, columKey) {
     try {
@@ -191,12 +138,11 @@ async function updateObjects(table, data, columKey) {
 
         sqlQuery += 'COMMIT;';
         // Execute the SQL query with values
-        const { Result, Status } = await executeQuery(sqlQuery, ...allValues);
-
-        return { Result, Status };
+        const { data, status, errorCode } = await executeMySqlQuery(sqlQuery, [allValues]); // Execute the query
+        return { data, status, errorCode };
     } catch (error) {
         console.error(error);
-        return { Result: error, Status: false };
+        return { data: null, status: false, errorCode: error.code || 'UNKNOWN_ERROR' };
     }
 }
 
@@ -204,7 +150,7 @@ async function updateObjects(table, data, columKey) {
  * Deletes data from a specified table based on specified columns and their corresponding values.
  * @param {string} table - The name of the table to delete data from.
  * @param {Object} columKey - An object containing column names and their corresponding values for comparison in the WHERE clause for the delete operation.
- * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the delete operation.
+ * @returns {Promise<{data: Object, status: error}>} - An object containing the result and status of the delete operation.
  */
 async function deleteObjects(table, columKey) {
     try {
@@ -223,18 +169,17 @@ async function deleteObjects(table, columKey) {
         });
 
         sqlQuery += 'COMMIT;';
-        
-        const { Result, Status } = await executeQuery(sqlQuery); // Execute the query
-        return { Result, Status };
+
+        const { data, status, errorCode } = await executeMySqlQuery(sqlQuery); // Execute the query
+        return { data, status, errorCode };
     } catch (error) {
         console.error(error);
-        return { Result: error, Status: false };
+        return { data: null, status: false, errorCode: error.code || 'UNKNOWN_ERROR' };
     }
-}
+};
 
-
-module.exports = { 
-    executeQuery,
+module.exports = {
+    executeMySqlQuery,
     insertObject,
     updateObject,
     deleteObject,

@@ -15,15 +15,17 @@ loginAuthenticate  = async(req, res) => {
     const username = req.body.username
     const password = req.body.password
     const result = await authenticate(username, password);
-    if (result.success) {
+    if (result.status) {
         const cookieOptions = {
                 httpOnly: true,
+                secure: false, // Chỉ gửi cookie qua HTTPS
+                sameSite: 'Strict',
                 expires: new Date(Date.now() + 86400000) // Thời gian hết hạn, tính bằng milliseconds( 1 ngày)
             };
-        res.cookie('token', result.token, cookieOptions);
-        res.json({ success: true, token: result.token });
+        res.cookie('RefreshToken', result.refreshToken, cookieOptions);
+        res.json({ status: true, token: result.token });
     } else {
-        res.status(401).json({ success: false, message: result.message });
+        res.status(401).json({ status: false, message: result.message });
     }
 }
 
