@@ -1,0 +1,33 @@
+CREATE DATABASE MYDATABASE;
+
+use MYDATABASE
+
+CREATE TABLE users (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(255),
+    fullName VARCHAR(100),
+    phone VARCHAR(20),
+    address VARCHAR(255),
+    email VARCHAR(100),
+    avatar VARCHAR(255)
+);
+
+
+INSERT INTO users (id, username, password, fullName, phone, address, email, avatar) 
+VALUES 
+    (UUID(), 'admin', '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy', 'Full Name myadmin', '1234567890', 'Address 1', 'user1@example.com', 'avatar1.jpg'),
+    (UUID(), 'user1', 'password1', 'Full Name 1', '1234567890', 'Address 1', 'user1@example.com', 'avatar1.jpg'),
+    (UUID(), 'user2', 'password2', 'Full Name 2', '1234567891', 'Address 2', 'user2@example.com', 'avatar2.jpg'),
+    (UUID(), 'user3', 'password3', 'Full Name 3', '1234567892', 'Address 3', 'user3@example.com', 'avatar3.jpg'),
+    (UUID(), 'user4', 'password4', 'Full Name 4', '1234567893', 'Address 4', 'user4@example.com', 'avatar4.jpg'),
+    (UUID(), 'user5', 'password5', 'Full Name 5', '1234567894', 'Address 5', 'user5@example.com', 'avatar5.jpg'),
+    (UUID(), 'user6', 'password6', 'Full Name 6', '1234567895', 'Address 6', 'user6@example.com', 'avatar6.jpg'),
+    (UUID(), 'user7', 'password7', 'Full Name 7', '1234567896', 'Address 7', 'user7@example.com', 'avatar7.jpg'),
+    (UUID(), 'user8', 'password8', 'Full Name 8', '1234567897', 'Address 8', 'user8@example.com', 'avatar8.jpg'),
+    (UUID(), 'user9', 'password9', 'Full Name 9', '1234567898', 'Address 9', 'user9@example.com', 'avatar9.jpg'),
+    (UUID(), 'user10', 'password10', 'Full Name 10', '1234567899', 'Address 10', 'user10@example.com', 'avatar10.jpg');
+
+
+
+Select * from users

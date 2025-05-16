@@ -3,8 +3,8 @@ require('dotenv').config(); // Load biến môi trường từ tệp .env
 
 const secretKey = process.env.SECRET_KEY;
 
-// Middleware để xác thực token JWT và phân quyền người dùng
-function authMiddleware(req, res, next) {
+// Middleware để xác thực token JWT
+function authorization(req, res, next) {
     // Lấy token từ tiêu đề 'Authorization'
     const token = req.headers.authorization;
     if (!token) {
@@ -23,4 +23,5 @@ function authMiddleware(req, res, next) {
     });
 }
 
-module.exports = authMiddleware;
+module.exports = authorization;
+

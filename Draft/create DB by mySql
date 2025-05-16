@@ -4,30 +4,118 @@ use MYDATABASE
 
 CREATE TABLE users (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    username VARCHAR(50) UNIQUE,
-    password VARCHAR(255),
-    fullName VARCHAR(100),
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
-    address VARCHAR(255),
-    email VARCHAR(100),
-    avatar VARCHAR(255)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
-INSERT INTO users (id, username, password, fullName, phone, address, email, avatar) 
-VALUES 
-    (UUID(), 'admin', '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy', 'Full Name myadmin', '1234567890', 'Address 1', 'user1@example.com', 'avatar1.jpg'),
-    (UUID(), 'user1', 'password1', 'Full Name 1', '1234567890', 'Address 1', 'user1@example.com', 'avatar1.jpg'),
-    (UUID(), 'user2', 'password2', 'Full Name 2', '1234567891', 'Address 2', 'user2@example.com', 'avatar2.jpg'),
-    (UUID(), 'user3', 'password3', 'Full Name 3', '1234567892', 'Address 3', 'user3@example.com', 'avatar3.jpg'),
-    (UUID(), 'user4', 'password4', 'Full Name 4', '1234567893', 'Address 4', 'user4@example.com', 'avatar4.jpg'),
-    (UUID(), 'user5', 'password5', 'Full Name 5', '1234567894', 'Address 5', 'user5@example.com', 'avatar5.jpg'),
-    (UUID(), 'user6', 'password6', 'Full Name 6', '1234567895', 'Address 6', 'user6@example.com', 'avatar6.jpg'),
-    (UUID(), 'user7', 'password7', 'Full Name 7', '1234567896', 'Address 7', 'user7@example.com', 'avatar7.jpg'),
-    (UUID(), 'user8', 'password8', 'Full Name 8', '1234567897', 'Address 8', 'user8@example.com', 'avatar8.jpg'),
-    (UUID(), 'user9', 'password9', 'Full Name 9', '1234567898', 'Address 9', 'user9@example.com', 'avatar9.jpg'),
-    (UUID(), 'user10', 'password10', 'Full Name 10', '1234567899', 'Address 10', 'user10@example.com', 'avatar10.jpg');
+CREATE TABLE roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(50) UNIQUE NOT NULL,
+    code VARCHAR(50) UNIQUE, -- Mã tùy chỉnh có thể thay đổi
+    description TEXT
+);
 
 
+CREATE TABLE rights (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    right_name VARCHAR(50) UNIQUE NOT NULL,
+    code VARCHAR(50) UNIQUE, -- Mã quyền có thể thay đổi
+    description TEXT
+);
+
+
+
+CREATE TABLE roles_rights (
+    role_id INT,
+    right_id INT,
+    PRIMARY KEY (role_id, right_id),
+    FOREIGN KEY (role_id) REFERENCES roles(id),
+    FOREIGN KEY (right_id) REFERENCES rights(id)
+);
+
+
+CREATE TABLE user_roles (
+    user_id CHAR(36),
+    role_id INT,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+);
+
+
+
+
+INSERT INTO users (id, username, password, full_name, email, phone)
+VALUES
+    (UUID(), 'admin', '$2b$10$abcd1234hashedpassword', 'Admin User', 'admin@example.com', '1234567890'),
+    (UUID(), 'user1', '$2b$10$xyz5678hashedpassword', 'User One', 'user1@example.com', '0987654321'),
+    (UUID(), 'user2', '$2b$10$lmn1234hashedpassword', 'User Two', 'user2@example.com', '0987654322'),
+    (UUID(), 'user3', '$2b$10$def5678hashedpassword', 'User Three', 'user3@example.com', '0987654323'),
+    (UUID(), 'user4', '$2b$10$pqr1234hashedpassword', 'User Four', 'user4@example.com', '0987654324'),
+    (UUID(), 'user5', '$2b$10$stu5678hashedpassword', 'User Five', 'user5@example.com', '0987654325'),
+    (UUID(), 'user6', '$2b$10$vwx1234hashedpassword', 'User Six', 'user6@example.com', '0987654326'),
+    (UUID(), 'user7', '$2b$10$ghi5678hashedpassword', 'User Seven', 'user7@example.com', '0987654327'),
+    (UUID(), 'user8', '$2b$10$jkl1234hashedpassword', 'User Eight', 'user8@example.com', '0987654328'),
+    (UUID(), 'user9', '$2b$10$mno5678hashedpassword', 'User Nine', 'user9@example.com', '0987654329');
+
+UPDATE users 
+SET password = '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy'
+WHERE username = 'admin';
+
+
+INSERT INTO roles (role_name, code, description)
+VALUES
+    ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống'),
+    ('Editor', 'EDITOR_ROLE', 'Có quyền chỉnh sửa nội dung'),
+    ('Viewer', 'VIEWER_ROLE', 'Chỉ có quyền xem nội dung'),
+    ('Manager', 'MANAGER_ROLE', 'Quản lý người dùng và phân quyền'),
+    ('Support', 'SUPPORT_ROLE', 'Hỗ trợ kỹ thuật và người dùng');
+
+
+
+INSERT INTO rights (right_name, code, description)
+VALUES
+    ('Create User', 'CREATE_USER', 'Tạo người dùng mới'),
+    ('Edit User', 'EDIT_USER', 'Chỉnh sửa thông tin người dùng'),
+    ('Delete User', 'DELETE_USER', 'Xóa người dùng'),
+    ('View Reports', 'VIEW_REPORTS', 'Xem báo cáo hệ thống'),
+    ('Manage Permissions', 'MANAGE_PERMISSIONS', 'Quản lý quyền truy cập');
+
+
+
+INSERT INTO roles_rights (role_id, right_id)
+VALUES
+    (1, 1), -- Administrator có quyền Tạo người dùng
+    (1, 2), -- Administrator có quyền Chỉnh sửa người dùng
+    (2, 2), -- Editor có quyền Chỉnh sửa người dùng
+    (3, 4), -- Viewer chỉ có quyền Xem báo cáo
+    (4, 5); -- Manager có quyền Quản lý quyền
+
+
+INSERT INTO users_roles (user_id, role_id)
+VALUES
+    ('user1-uuid-here', 1), -- User1 là Administrator
+    ('user2-uuid-here', 2), -- User2 là Editor
+    ('user3-uuid-here', 3), -- User3 là Viewer
+    ('user4-uuid-here', 4), -- User4 là Manager
+    ('user5-uuid-here', 5); -- User5 là Support
+
+
+users, roles, roles_rights, rights, user_roles
+
+-- Lấy danh sách quyền của người dùng có id = 'user1-uuid-here'
+-- Lấy danh sách quyền của người dùng có id = 'e80df218-3228-11f0-b25f-0242ac110003'
+SELECT  rights.id, rights.right_name, rights.code, rights.description
+FROM users
+JOIN users_roles ON users.id = users_roles.user_id
+JOIN roles ON users_roles.role_id = roles.id
+JOIN roles_rights ON roles.id = roles_rights.role_id
+JOIN rights ON roles_rights.right_id = rights.id
+WHERE users.id = 'e80df218-3228-11f0-b25f-0242ac110003';
 
 Select * from users

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const sqldata = require("../config/SQLServer/SqlServerConnect");
+const sqldata = require("../config/MySql/executeQuery");
 
 require('dotenv').config(); // Load biến môi trường từ tệp .env
 

@@ -1,5 +1,4 @@
-
-const sqldata = require("../config/SQLServer/SqlServerConnect");
+const sqldata = require("../config/MySql/MySqlObject");
 // lấy tất cả users trên csdl
 function login() {
         // Logic để lấy thông tin người dùng từ cơ sở dữ liệu
