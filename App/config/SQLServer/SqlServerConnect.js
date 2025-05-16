@@ -1,11 +1,7 @@
 const sql = require('mssql');
 const sqlstring = require('sqlstring');
-const {executeSqlServerQuery} = require('./excuteSqlServer');
+const {executeQuery} = require('./excuteSqlServer');
 require('dotenv').config();
-
-
-
-
 
 /**
  *Inserts an object into a specified table.
@@ -19,7 +15,7 @@ async function insertObject(table, object) {
         const placeholders = keys.map(() => '?').join(',');
         const values = keys.map(key => object[key]);
         const sqlQuery = `INSERT INTO ${table} (${keys.join(',')}) VALUES (${placeholders})`;
-        const { data, status, errorCode } = await executeSqlServerQuery(sqlQuery, [values]);
+        const { data, status, errorCode } = await executeQuery(sqlQuery, values);
         return { data, status, errorCode };
     } catch (error) {
         console.error(error);
@@ -42,7 +38,7 @@ async function updateObject(table, object, columKey) {
         const whereClause = Object.keys(columKey).map(key => `${key} = ?`).join(' AND '); // Create the WHERE clause
         const whereValues = Object.values(columKey); // Get the values for the WHERE clause
         const sqlQuery = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`; // Create the SQL query
-        const { data, status, errorCode } = await executeSqlServerQuery(sqlQuery, [...values, ...whereValues]); // Execute the query
+        const { data, status, errorCode } = await executeQuery(sqlQuery, [...values, ...whereValues]); // Execute the query
         return { data, status, errorCode };
     } catch (error) {
         console.error(error);
@@ -61,7 +57,7 @@ async function deleteObject(table, columKey) {
         const setClause = Object.keys(columKey).map(key => `${key} = ?`).join(' AND '); // Create the SET clause for the delete
         const values = Object.values(columKey); // Get the values to be used in the WHERE clause
         const sqlQuery = `DELETE FROM ${table} WHERE ${setClause}`; // Create the SQL query
-        const { data, status, errorCode } = await executeSqlServerQuery(sqlQuery, [values]); // Execute the query
+        const { data, status, errorCode } = await executeQuery(sqlQuery, values); // Execute the query
         return { data: data, status: status, errorCode: errorCode };
     } catch (error) {
         console.error(error);
@@ -76,16 +72,15 @@ async function deleteObject(table, columKey) {
  * @param {Array<Object>} data - An array of objects representing the data to be inserted. Each object should have keys corresponding to the table columns.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the insertion operation.
  */
- async function insertObjects(table, data) {
+ async function insertObjects(table, dataIn) {
     try {
-        const keys = Object.keys(data[0]); // Lấy danh sách các trường từ object đầu tiên
-        const placeholders = data.map(() => `(${keys.map(() => '?').join(',')})`).join(','); // Tạo chuỗi placeholders cho các giá trị
+        const keys = Object.keys(dataIn[0]); // Lấy danh sách các trường từ object đầu tiên
+        const placeholders = dataIn.map(() => `(${keys.map(() => '?').join(',')})`).join(','); // Tạo chuỗi placeholders cho các giá trị
         const columns = keys.join(','); // Tạo chuỗi các trường cần insert
-        const values = data.flatMap(item => Object.values(item)); // Tạo mảng giá trị từ mảng dữ liệu
+        const values = dataIn.flatMap(item => Object.values(item)); // Tạo mảng giá trị từ mảng dữ liệu
         
         const sqlQuery = `INSERT INTO ${table} (${columns}) VALUES ${placeholders};`; // Tạo câu truy vấn insert
-        const { data, status, errorCode } = await executeSqlServerQuery(sqlQuery, [values]); // Thực thi truy vấn
-
+        const { data, status, errorCode } = await executeQuery(sqlQuery, values); // Thực thi truy vấn
         return { data, status, errorCode };
     } catch (error) {
         console.error(error);
@@ -97,16 +92,16 @@ async function deleteObject(table, columKey) {
 /**
  * Updates data in a specified table based on a specified column.
  * @param {string} table - The name of the table to update data in.
- * @param {Array<Object>} data - An array of objects representing the data to be updated. Each object should have keys corresponding to the table columns.
+ * @param {Array<Object>} dataIn - An array of objects representing the data to be updated. Each object should have keys corresponding to the table columns.
  * @param {Array<string>} columKey - An array containing the names of the columns used for comparison in the WHERE clause for the update operation.
  * @returns {Promise<{Result: Object, Status: boolean}>} - An object containing the result and status of the update operation.
  */
-async function updateObjects(table, data, columKey) {
+async function updateObjects(table, dataIn, columKey) {
     try {
         let sqlQuery = 'BEGIN TRANSACTION; ';
         let allValues = [];
         // Iterate through each object in data
-        data.forEach(item => {
+        dataIn.forEach(item => {
             // Initialize setClause, whereClause, và itemValues
             let setClause = '';
             let whereClause = '';     
@@ -144,8 +139,7 @@ async function updateObjects(table, data, columKey) {
 
         sqlQuery += 'COMMIT;';
         // Execute the SQL query with values
-        const { data, status, errorCode } = await executeSqlServerQuery(sqlQuery, [allValues]);
-
+        const { data, status, errorCode } = await executeQuery(sqlQuery, allValues);
         return { data, status, errorCode };
     } catch (error) {
         console.error(error);
@@ -177,7 +171,7 @@ async function deleteObjects(table, columKey) {
 
         sqlQuery += 'COMMIT;';
         
-        const { data, status, errorCode } = await executeSqlServerQuery(sqlQuery); // Execute the query
+        const { data, status, errorCode } = await executeQuery(sqlQuery); // Execute the query
         return { data, status, errorCode };
     } catch (error) {
         console.error(error);
@@ -187,7 +181,7 @@ async function deleteObjects(table, columKey) {
 
 
 module.exports = { 
-    executeSqlServerQuery,
+    executeQuery,
     insertObject,
     updateObject,
     deleteObject,

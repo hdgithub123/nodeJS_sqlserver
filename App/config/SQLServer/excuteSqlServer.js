@@ -12,7 +12,8 @@ require('dotenv').config();
 let pool;
 const initializePool = async () => {
     if (!pool) {
-        const port = process.env.PORT || 9000;
+        // const port = process.env.PORT || 9000 // Cách này cho dia chi 10.0.0.1 -- chua biet tai sao;
+       const port = process.env.PORT;
         const config = {
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
@@ -21,14 +22,15 @@ const initializePool = async () => {
             database: process.env.DB_DATABASE,
             options: {
                 trustServerCertificate: true,
-                encrypt: false // Tắt SSL/TLS ở đây
+                encrypt: false, // Tắt SSL/TLS ở đây
+                enableArithAbort: true
             }
         };
         pool = await new sql.ConnectionPool(config).connect();
     }
     return pool;
 };
-const executeSqlServerQuery = async (sqlQuery, params=[]) => {
+const executeQuery = async (sqlQuery, params=[]) => {
     try {
         const pool = await initializePool();
         const request = pool.request();
@@ -55,5 +57,5 @@ const executeSqlServerQuery = async (sqlQuery, params=[]) => {
 };
 
 module.exports = {
-  executeSqlServerQuery
+  executeQuery
 };

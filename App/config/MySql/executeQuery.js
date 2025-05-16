@@ -2,11 +2,11 @@ const mysql = require('mysql2/promise');
 
 // Tạo kết nối với MySQL
 const pool = mysql.createPool({
-  host: '100.0.0.1',
-  user: 'admin',
+  host: 'localhost',
+  user: 'root',
   port: '3306',
-  password: 'admin123456',
-  database: 'sakila',
+  password: '123456',
+  database: 'MYDATABASE',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -23,7 +23,7 @@ const pool = mysql.createPool({
  * If an error occurs during execution, the error is logged and returned in the result.
  */
 
-const executeMySqlQuery = async (query, params = []) => {
+const executeQuery = async (query, params = []) => {
   try {
     const [rows] = await pool.execute(query, params);
     return {
@@ -42,5 +42,5 @@ const executeMySqlQuery = async (query, params = []) => {
 };
 
 module.exports = {
-  executeMySqlQuery
+  executeQuery
 };

@@ -9,7 +9,7 @@ const secretKey = process.env.SECRET_KEY;
 
 async function authenticate(username, password) {
     const Sqlstring = "Select username, password from users where username = ?";
-    const users = await sqldata.executeSqlServerQuery(Sqlstring, [username]);
+    const users = await sqldata.executeQuery(Sqlstring, [username]);
     if (users.status) {
         const user = users.data.find(u => u.username === username);
         if (user && bcrypt.compareSync(password, user.password)) {

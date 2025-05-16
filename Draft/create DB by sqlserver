@@ -1,10 +1,13 @@
+CREATE DATABASE MYDATABASE;
+GO
+
 use MYDATABASE
 go
 
 CREATE TABLE [users] (
     id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     username NVARCHAR(50) UNIQUE,
-    password NVARCHAR(100),
+    password NVARCHAR(255),
     fullName NVARCHAR(100),
     phone NVARCHAR(20),
     address NVARCHAR(255),
@@ -16,6 +19,7 @@ CREATE TABLE [users] (
 
 INSERT INTO [users] (id, username, password, fullName, phone, address, email, avatar) 
 VALUES 
+    (NEWID(), 'admin', '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy', 'Full Name myadmin', '1234567890', 'Address 1', 'user1@example.com', 'avatar1.jpg'),
     (NEWID(), 'user1', 'password1', 'Full Name 1', '1234567890', 'Address 1', 'user1@example.com', 'avatar1.jpg'),
     (NEWID(), 'user2', 'password2', 'Full Name 2', '1234567891', 'Address 2', 'user2@example.com', 'avatar2.jpg'),
     (NEWID(), 'user3', 'password3', 'Full Name 3', '1234567892', 'Address 3', 'user3@example.com', 'avatar3.jpg'),
